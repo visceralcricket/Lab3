@@ -48,11 +48,12 @@ HashMap * createMap(long capacity) {
     HashMap *map = (HashMap *) malloc(sizeof(HashMap));
     if(map==NULL) return NULL;
 
+    // Inicializar arreglo con buckets como casillas nulas (0)
     map->buckets = (Pair **) calloc(capacity, sizeof(Pair *));
-    
     map->capacity = capacity;
     map->size = 0;
     map->current = -1;
+    
     return map;
 }
 
@@ -66,19 +67,20 @@ HashMap * createMap(long capacity) {
 // No inserte claves repetidas. Recuerde que el arreglo es circular. Recuerde actualizar la variable size.
 
 void insertMap(HashMap * map, char * key, void * value) {
-    if(map==NULL || key==NULL) return;
+    if(map==NULL || key==NULL) return; // Protección contra mapa hash o key no válidos
 
-    long index = hash(key, map->capacity);
+    long index = hash(key, map->capacity); // a.
     while(map->buckets[index]!=NULL && map->buckets[index]->key!=NULL) {
         if(is_equal(map->buckets[index]->key, key)) return;
-        index = (index + 1)%map->capacity;
+        index = (index+1) % map->capacity; // Avanzar linealmente hasta encontrar casilla disponible
     }
-    if(map->buckets[index]==NULL) map->buckets[index] = createPair(key, value);
+    
+    if(map->buckets[index]==NULL) map->buckets[index] = createPair(key, value); // Caso casilla válida\vacía
     else {
         map->buckets[index]->key = key;
         map->buckets[index]->value = value;
     }
-    map->size++;
+    map->size++; // Actualizar tamaño
     map->current = index;
 }
 
@@ -90,7 +92,7 @@ void insertMap(HashMap * map, char * key, void * value) {
 // Recuerde actualizar el índice current a la posición encontrada. Recuerde que el arreglo es circular.
 
 Pair * searchMap(HashMap * map,  char * key) {   
-
+    // Ciclo while buckets[index]!=NULL, cuando termine el ciclo, se concluye que el key no existe.
 
     return NULL;
 }
@@ -102,8 +104,11 @@ Pair * searchMap(HashMap * map,  char * key) {
 // Recuerde actualizar la variable size.
 
 void eraseMap(HashMap * map,  char * key) {    
-
-
+    Pair *tmp = searchMap(map, key);
+    if(tmp!=NULL) {
+        tmp->key = NULL; // Invalidar par
+        map->size--; // Actualizar size del arreglo
+    }
 }
 
 // 5. Implemente las funciones para recorrer la estructura: Pair * firstMap(HashMap * map) retorna el primer Pair válido del arreglo buckets. 
