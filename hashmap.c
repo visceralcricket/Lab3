@@ -82,7 +82,7 @@ void insertMap(HashMap * map, char * key, void * value) {
         map->buckets[index]->value = value; // value que era irrelevante se actualiza
     }
     map->size++; // Actualizar tamaño
-    map->current = index;
+    map->current = index; // Actualizar current
 
     /* +++
     No hacer map->buckets[index]->key = NULL; porque esto afectaría en la búsqueda en searchMap
@@ -150,13 +150,15 @@ void eraseMap(HashMap * map,  char * key) {
 
 Pair * firstMap(HashMap * map) {
     if(map==NULL) return NULL;
-
-    
-    
-    return NULL;
+    int indice = -1;
+    while(map->buckets[indice]!=NULL) {
+        indice++;
+    }
+    return map->buckets[indice];
 }
 
 Pair * nextMap(HashMap * map) {
+    
     return NULL;
 }
 
