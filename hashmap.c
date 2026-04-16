@@ -151,7 +151,7 @@ void eraseMap(HashMap * map,  char * key) {
 Pair * firstMap(HashMap * map) {
     if(map==NULL) return NULL;
     int indice = -1;
-    while(map->buckets[indice]!=NULL) {
+    while(map->buckets[indice]->value==NULL && map->buckets[indice]->key==NULL) {
         indice = (indice+1)%(map->capacity);
     }
     return map->buckets[indice];
