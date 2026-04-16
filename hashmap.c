@@ -69,19 +69,41 @@ HashMap * createMap(long capacity) {
 void insertMap(HashMap * map, char * key, void * value) {
     if(map==NULL || key==NULL) return; // Protección contra mapa hash o key no válidos
 
-    long index = hash(key, map->capacity); // a.
+    long index = hash(key, map->capacity); // a - Mapear key usando la función hash
     while(map->buckets[index]!=NULL && map->buckets[index]->key!=NULL) {
-        if(is_equal(map->buckets[index]->key, key)) return;
+        if(is_equal(map->buckets[index]->key, key)) return; // Si la key ya existe, no insertar | evitar duplicados
         index = (index+1) % map->capacity; // Avanzar linealmente hasta encontrar casilla disponible
     }
     
-    if(map->buckets[index]==NULL) map->buckets[index] = createPair(key, value); // Caso casilla válida\vacía
-    else {
-        map->buckets[index]->key = key;
-        map->buckets[index]->value = value;
+    if(map->buckets[index]==NULL) map->buckets[index] = createPair(key, value); // Casilla disponible -> insertar
+
+    else { // Caso donde el par de la casilla fue eliminada con eraseMap
+        map->buckets[index]->key = key; // map->buckets[index]->key (key actual) = NULL
+        map->buckets[index]->value = value; // value que era irrelevante se actualiza
     }
     map->size++; // Actualizar tamaño
     map->current = index;
+
+    /* +++
+    No hacer map->buckets[index]->key = NULL; porque esto afectaría en la búsqueda en searchMap
+    Sólo dejar constancia de que la casilla es no válida: esto permitirá a la función insertMap saltarse esta
+    casilla e ignorarla porque no es válida (su key == NULL)
+
+    Ejemplo de flujo:
+    key='Pepe', value = 10 y retorna índice = 2
+    map->buckets[2]==NULL, por ende se inserta
+    Su estado actual sería: map->buckets[2]: key='Pepe', value=10
+    Luego, se elimina el mismo dato, por ende map->buckets[2]->key = NULL, pero value permanece igual.
+    ^- Aquí es donde se deja la constancia (lápida\tombstone según leí en internet) de que esta casilla se borró
+    Su estado actual entonces sería: key=NULL, value=10
+    Si se vuelve a insertar un -nuevo- dato en esta casilla, ej: key='Diego', value=20 con índice = 2, se verificaría que:
+    while(map->buckets[index]!=NULL && map->buckets[index]->key!=NULL)
+    map->buckets[index]!=NULL? Sí, porque el bloque de memoria aún existe; map->buckets[index]->key!=NULL? No, key=NULL
+    Por ende el ciclo while finalizaría inmediatamente, lo que nos llevaría al if else final:
+    map->buckets[index]==NULL? No, porque el bloque de memoria en índice 2 sigue existiendo, por ende se ejecuta:
+    map->buckets[index]->key (que era NULL) = 'Diego', y map->buckets[index]->value = value (value ahora es 20 en vez de 10)
+    Y así es como se lograría 'reutilizar' una casilla marcada como no válida para insertar un nuevo dato (de igual índice).
+    --- */
 }
 
 // 3. Implemente la función Pair * searchMap(HashMap * map, char * key), la cual retorna el Pair asociado a la clave ingresada. 
@@ -91,19 +113,20 @@ void insertMap(HashMap * map, char * key, void * value) {
 //   c - Si llega a una casilla nula, retorne NULL inmediatamente (no siga avanzando, la clave no está)
 // Recuerde actualizar el índice current a la posición encontrada. Recuerde que el arreglo es circular.
 
-Pair * searchMap(HashMap * map,  char * key) {   
-    // Ciclo while buckets[index]!=NULL, cuando termine el ciclo, se concluye que el key no existe.
+Pair * searchMap(HashMap * map,  char * key) {
     if(map==NULL || key==NULL) return NULL;
+    // Ciclo while buckets[index]!=NULL, cuando termine el ciclo, se concluye que el key no existe.
 
-    long index = hash(key, map->capacity);
+    long index = hash(key, map->capacity); // Mapear key usando la función hash
     while(map->buckets[index]!=NULL) {
+        // Comprobar si la casilla actual tiene una key y si dicha key coincide con la que se debe buscar
         if(map->buckets[index]->key != NULL && is_equal(map->buckets[index]->key, key)) {
-            map->current = index;
-            return map->buckets[index];
+            map->current = index; // Actualizar posición actual
+            return map->buckets[index]; // Retornar par encontrado en la casilla
         }
-        index = (index+1)%map->capacity;
+        index = (index+1)%map->capacity; // Actualizar índice con avance lineal
     }
-    
+    // La key a buscar no existe
     return NULL;
 }
 
@@ -115,8 +138,8 @@ Pair * searchMap(HashMap * map,  char * key) {
 
 void eraseMap(HashMap * map,  char * key) {    
     Pair *tmp = searchMap(map, key); // Buscar key en mapa
-    if(tmp!=NULL) {
-        tmp->key = NULL; // Invalidar par
+    if(tmp!=NULL) { // Si el par existe
+        tmp->key = NULL; // Invalidar dicho par
         map->size--; // Actualizar size del arreglo
     }
 }
@@ -126,12 +149,14 @@ void eraseMap(HashMap * map,  char * key) {
 // Recuerde actualizar el índice.
 
 Pair * firstMap(HashMap * map) {
-
+    if(map==NULL) return NULL;
+    
     return NULL;
 }
 
 Pair * nextMap(HashMap * map) {
-
+    if(map==NULL) return NULL;
+    
     return NULL;
 }
 
