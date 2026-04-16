@@ -93,7 +93,17 @@ void insertMap(HashMap * map, char * key, void * value) {
 
 Pair * searchMap(HashMap * map,  char * key) {   
     // Ciclo while buckets[index]!=NULL, cuando termine el ciclo, se concluye que el key no existe.
+    if(map==NULL || key==NULL) return NULL;
 
+    long index = hash(key, map->capacity);
+    while(map->buckets[index]!=NULL) {
+        if(map->buckets[index]->key != NULL && is_equal(map->buckets[index]->key, key)) {
+            map->current = index;
+            return map->buckets[index];
+        }
+        index = (index+1)%map->capacity;
+    }
+    
     return NULL;
 }
 
@@ -104,7 +114,7 @@ Pair * searchMap(HashMap * map,  char * key) {
 // Recuerde actualizar la variable size.
 
 void eraseMap(HashMap * map,  char * key) {    
-    Pair *tmp = searchMap(map, key);
+    Pair *tmp = searchMap(map, key); // Buscar key en mapa
     if(tmp!=NULL) {
         tmp->key = NULL; // Invalidar par
         map->size--; // Actualizar size del arreglo
