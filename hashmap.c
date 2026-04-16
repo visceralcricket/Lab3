@@ -152,7 +152,7 @@ Pair * firstMap(HashMap * map) {
     if(map==NULL) return NULL;
     int indice = -1;
     while(map->buckets[indice]!=NULL) {
-        indice = (indice+1)%map->capacity;
+        indice = (indice+1)%(map->capacity);
     }
     return map->buckets[indice];
 }
