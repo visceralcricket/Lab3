@@ -150,11 +150,11 @@ void eraseMap(HashMap * map,  char * key) {
 
 Pair * firstMap(HashMap * map) {
     if(map==NULL) return NULL;
-    int indice = -1;
-    while(map->buckets[indice]->value==NULL && map->buckets[indice]->key==NULL) {
-        indice = (indice+1)%(map->capacity);
+    int mapCapacity = map->capacity;
+    for(int i=0; i<mapCapacity; i++) {
+        if(map->buckets[i]->key!=NULL && map->buckets[i]->value!=NULL) return map->buckets[i];
     }
-    return map->buckets[indice];
+    return NULL;
 }
 
 Pair * nextMap(HashMap * map) {
