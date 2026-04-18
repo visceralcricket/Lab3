@@ -163,7 +163,14 @@ Pair * firstMap(HashMap * map) {
 }
 
 Pair * nextMap(HashMap * map) {
-    
+    if(map==NULL) return NULL;
+    long arrCapacity = map->capacity;
+    for(long i= map->current+1; i<arrCapacity; i++) {
+        if(map->buckets[i]!=NULL && map->buckets[i]->key!=NULL) {
+            map->current = i;
+            return map->buckets[i];
+        }
+    }
     return NULL;
 }
 
@@ -182,15 +189,16 @@ Pair * nextMap(HashMap * map) {
 void enlarge(HashMap * map) {
     enlarge_called = 1; //no borrar (testing purposes)
     Pair **old_buckets = map->buckets;
-    int old_capacity = map->capacity;
+    long old_capacity = map->capacity;
     map->capacity*=2;
-    map->buckets = (Pair **) calloc(map->capacity, sizeof(Pair));
+    
+    map->buckets = (Pair **) calloc(map->capacity, sizeof(Pair *));
     if(map->buckets==NULL) {
         map->buckets = old_buckets;
         map->capacity = old_capacity;
         return;
-        
     }
+    map->size = 0;
     for(int i=0; i<old_capacity; i++) {
         if(old_buckets[i]!=NULL) {
             insertMap(map, old_buckets[i]->key, old_buckets[i]->value);
